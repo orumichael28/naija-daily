@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-border: var(--border-color);
+  --color-card: var(--card-bg);
+
+  --font-serif: var(--font-newsreader), Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Custom animations */
+  --animate-flip: flip 0.5s ease-in-out;
+  --animate-shake: shake 0.4s ease-in-out;
+  --animate-fadein: fadein 0.15s ease-out;
+}
+
+@keyframes flip {
+  0%   { transform: rotateX(0deg); }
+  50%  { transform: rotateX(-90deg); }
+  100% { transform: rotateX(0deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-5px); }
+  40%       { transform: translateX(5px); }
+  60%       { transform: translateX(-3px); }
+  80%       { transform: translateX(3px); }
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #111827;
+  --brand: #15803d;
+  --brand-hover: #166534;
+  --border-color: #e5e7eb;
+  --card-bg: #ffffff;
+  --card-subtle: #f9fafb;
+
+  /* Wordle feedback colors (Classic) */
+  --tile-correct: #15803d;
+  --tile-present: #ca8a04;
+  --tile-absent: #6b7280;
+}
+
+.colorblind {
+  /* High-contrast colorblind mode: Orange for correct, Sky-blue for present */
+  --tile-correct: #f97316;
+  --tile-present: #0ea5e9;
+  --tile-absent: #6b7280;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --brand: #16a34a;
+  --brand-hover: #15803d;
+  --border-color: #27272a;
+  --card-bg: #121215;
+  --card-subtle: #18181b;
+
+  --tile-correct: #15803d;
+  --tile-present: #a16207;
+  --tile-absent: #3f3f46;
+}
+
+.dark.colorblind {
+  --tile-correct: #ea580c;
+  --tile-present: #0284c7;
+  --tile-absent: #3f3f46;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-editorial {
+  font-family: var(--font-serif);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
