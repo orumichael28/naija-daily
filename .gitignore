@@ -46,3 +46,6 @@ next-env.d.ts
 
 # logs
 rejected-guesses.log
+
+.vercel
+.env*
