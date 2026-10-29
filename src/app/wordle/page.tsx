@@ -1,7 +1,6 @@
 import React from "react";
-import fs from "fs";
-import path from "path";
 import { getTodayInLagos } from "@/lib/dates";
+import { getServiceSupabase } from "@/lib/supabaseClient";
 import { WordleGame } from "@/games/wordle/WordleGame";
 import Link from "next/link";
 
@@ -16,25 +15,50 @@ export const metadata = {
   description: "Play today's 5-letter Nigerian Wordle puzzle",
 };
 
-export default function WordlePage() {
-  const date = getTodayInLagos();
-  const filePath = path.join(process.cwd(), "puzzles", "wordle", `${date}.json`);
+export const revalidate = 0;
+
+export default async function WordlePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ date?: string; preview?: string }>;
+}) {
+  const sp = searchParams ? await searchParams : {};
+  const isPreview = sp.preview === "true";
+  const date = sp.date || getTodayInLagos();
 
   let puzzleData: WordlePuzzleData | null = null;
-  if (fs.existsSync(filePath)) {
-    try {
-      puzzleData = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    } catch {
-      puzzleData = null;
+
+  try {
+    const supabase = getServiceSupabase();
+    let query = supabase
+      .from("puzzles")
+      .select("game, puzzle_date, payload, status")
+      .eq("game", "wordle")
+      .eq("puzzle_date", date);
+
+    if (!isPreview) {
+      query = query.eq("status", "published");
     }
+
+    const { data } = await query.maybeSingle();
+    if (data?.payload) {
+      puzzleData = data.payload as WordlePuzzleData;
+    }
+  } catch (err) {
+    console.error("Failed to fetch Wordle puzzle:", err);
   }
 
   if (!puzzleData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center">
-        <h1 className="text-2xl font-bold mb-2">No Puzzle Found for Today</h1>
-        <p className="text-gray-500 mb-4">Please check back tomorrow for a new Naija Wordle puzzle!</p>
-        <Link href="/" className="px-4 py-2 bg-green-700 text-white font-semibold rounded-lg">
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-white dark:bg-zinc-950 text-gray-900 dark:text-gray-100">
+        <h1 className="font-editorial text-2xl font-bold mb-2">Today&apos;s puzzle isn&apos;t ready yet</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+          Check back shortly for today&apos;s Naija Wordle challenge!
+        </p>
+        <Link
+          href="/"
+          className="px-5 py-2.5 bg-[#15803d] hover:bg-[#166534] text-white text-sm font-semibold rounded-lg transition-colors"
+        >
           Back to Home
         </Link>
       </div>
@@ -43,4 +67,3 @@ export default function WordlePage() {
 
   return <WordleGame puzzle={puzzleData} />;
 }
-
